@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -32,6 +34,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'json')]
     private array $roles = [];
+
+    /**
+     * @var Collection<int, Snippet>
+     */
+    #[ORM\OneToMany(targetEntity: Snippet::class, mappedBy: 'owner', orphanRemoval: true)]
+    private Collection $snippets;
+
+    public function __construct()
+    {
+        $this->snippets = new ArrayCollection();
+    }
 
     public function toArray(): array
     {
@@ -121,5 +134,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    /**
+     * @return Collection<int, Snippet>
+     */
+    public function getSnippets(): Collection
+    {
+        return $this->snippets;
+    }
+
+    public function addSnippet(Snippet $snippet): static
+    {
+        if (!$this->snippets->contains($snippet)) {
+            $this->snippets->add($snippet);
+            $snippet->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSnippet(Snippet $snippet): static
+    {
+        if ($this->snippets->removeElement($snippet)) {
+            // set the owning side to null (unless already changed)
+            if ($snippet->getOwner() === $this) {
+                $snippet->setOwner(null);
+            }
+        }
+
+        return $this;
     }
 }

@@ -7,6 +7,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Mapping\ClassMetadata;
 
 #[ORM\Entity(repositoryClass: SnippetRepository::class)]
 class Snippet
@@ -23,9 +25,6 @@ class Snippet
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $code = null;
 
-    #[ORM\Column(type: 'uuid')]
-    private ?Uuid $owner = null;
-
     #[ORM\Column]
     private ?bool $is_public = false;
 
@@ -37,6 +36,10 @@ class Snippet
 
     #[ORM\Column]
     private ?int $likes = 0;
+
+    #[ORM\ManyToOne(inversedBy: 'snippets')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $owner = null;
 
 
     public function toArray()
@@ -73,18 +76,6 @@ class Snippet
     public function setCode(?string $code): static
     {
         $this->code = $code;
-
-        return $this;
-    }
-
-    public function getOwner(): ?Uuid
-    {
-        return $this->owner;
-    }
-
-    public function setOwner(Uuid $owner): static
-    {
-        $this->owner = $owner;
 
         return $this;
     }
@@ -133,6 +124,23 @@ class Snippet
     public function setLikes(int $likes): static
     {
         $this->likes = $likes;
+
+        return $this;
+    }
+
+    public static function loadValidatorMetadata(ClassMetadata $metadata): void
+    {
+        $metadata->addPropertyConstraint('title', new NotBlank());
+    }
+
+    public function getOwner(): ?User
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(?User $owner): static
+    {
+        $this->owner = $owner;
 
         return $this;
     }
