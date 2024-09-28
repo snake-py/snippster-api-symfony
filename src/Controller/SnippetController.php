@@ -34,7 +34,7 @@ class SnippetController extends AbstractController
         $this->snippetRepository = $this->entityManager->getRepository(Snippet::class);
     }
 
-    #[Route('/snippets/{id}', name: 'snippet', methods: 'GET')]
+    #[Route('/api/snippets/{id}', name: 'snippet', methods: 'GET')]
     public function getOne(EntityManagerInterface $entityManager, int $id): Response
     {
         /** @var Snippet $snippet */
@@ -45,7 +45,7 @@ class SnippetController extends AbstractController
     }
 
 
-    #[Route('/snippets', name: 'snippet_list', methods: 'GET')]
+    #[Route('/api/snippets', name: 'snippet_list', methods: 'GET')]
     public function get(EntityManagerInterface $entityManager): Response
     {
         /** @var Snippet[] $snippets */
@@ -60,7 +60,7 @@ class SnippetController extends AbstractController
     }
 
 
-    #[Route('/snippets', name: 'snippet_create', methods: 'POST')]
+    #[Route('/api/snippets', name: 'snippet_create', methods: 'POST')]
     public function post(Request $request): Response
     {
         $data = $request->getPayload();
@@ -72,7 +72,7 @@ class SnippetController extends AbstractController
     }
 
 
-    #[Route('/snippets/{id}', name: 'snippet_update', methods: 'PUT')]
+    #[Route('/api/snippets/{id}', name: 'snippet_update', methods: 'PUT')]
     public function put(Request $request, int $id): Response
     {
         $data = $request->getPayload();
@@ -84,7 +84,7 @@ class SnippetController extends AbstractController
     }
 
 
-    #[Route('/snippets/{id}', name: 'snippet_delete', methods: 'DELETE')]
+    #[Route('/api/snippets/{id}', name: 'snippet_delete', methods: 'DELETE')]
     public function destroy(int $id): Response
     {
         $snippetRepository = $this->getRepository();
