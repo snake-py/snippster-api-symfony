@@ -59,20 +59,4 @@ class ApiAuthController extends AbstractController
 
         return $this->json($user->toArray());
     }
-
-    #[Route('/api/login', name: 'api_login', methods: ['POST'])]
-    public function login(#[CurrentUser] ?User $user): JsonResponse
-    {
-        if (is_null($user)) {
-            return $this->json([
-                'message' => 'missing credentials',
-            ], Response::HTTP_UNAUTHORIZED);
-        }
-        $token = 'my-new-toke'; //  $user->getToken();
-
-        return $this->json([
-            'user' => $user->getUserIdentifier(),
-            'toke' => $token
-        ]);
-    }
 }
