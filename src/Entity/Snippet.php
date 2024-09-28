@@ -48,6 +48,11 @@ class Snippet
             'id' => $this->getId(),
             'title' => $this->getTitle(),
             'code' => $this->getCode(),
+            'owner' => $this->getOwner()->getId(),
+            'language' => $this->getLanguage(),
+            'framework' => $this->getFramework(),
+            'likes' => $this->getLikes(),
+            'isPublic' => $this->isPublic()
         ];
     }
 
@@ -128,6 +133,7 @@ class Snippet
         return $this;
     }
 
+    //@todo cover proper request body validations
     public static function loadValidatorMetadata(ClassMetadata $metadata): void
     {
         $metadata->addPropertyConstraint('title', new NotBlank());

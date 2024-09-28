@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Snippet;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Error;
@@ -17,11 +18,23 @@ class SnippetRepository extends ServiceEntityRepository
         parent::__construct($registry, Snippet::class);
     }
 
-    public function createOne(string $title, string $code = null): Snippet
-    {
+    public function createOne(
+        User $user,
+        string $title,
+        string $code = null,
+        string $language = null,
+        string $framework = null,
+        bool $isPublic = false
+    ): Snippet {
         $snippet = new Snippet();
+        $snippet->setOwner($user);
+
         $snippet->setTitle($title);
         $snippet->setCode($code);
+        $snippet->setLanguage($language);
+        $snippet->setFramework($framework);
+        $snippet->setPublic($isPublic);
+
         $em = $this->getEntityManager();
 
         $em->persist($snippet);

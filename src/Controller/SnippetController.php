@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Snippet;
+use App\Entity\User;
 use App\Repository\SnippetRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -10,6 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 class SnippetController extends AbstractController
 {
@@ -61,11 +63,21 @@ class SnippetController extends AbstractController
 
 
     #[Route('/api/snippets', name: 'snippet_create', methods: 'POST')]
-    public function post(Request $request): Response
-    {
+    public function post(
+        #[CurrentUser()] User $user,
+        Request $request
+    ): Response {
         $data = $request->getPayload();
         $snippetRepository = $this->getRepository();
-        $snippet = $snippetRepository->createOne($data->get('title'), $data->get('code'));
+
+        $snippet = $snippetRepository->createOne(
+            $user,
+            $data->get('title'),
+            $data->get('code'),
+            $data->get('language'),
+            $data->get('framework'),
+            $data->get('isPublic')
+        );
         return new JsonResponse(
             $snippet->toArray()
         );
