@@ -7,6 +7,7 @@ use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Error;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * @extends ServiceEntityRepository<Snippet>
@@ -43,24 +44,25 @@ class SnippetRepository extends ServiceEntityRepository
         return $snippet;
     }
 
-    public function update(int $id, string $title = null, string $code = null): Snippet
-    {
+    public function update(
+        User $user,
+        Uuid $id,
+        string $title = null,
+        string $code = null,
+        string $language = null,
+        string $framework = null,
+        bool $isPublic = false
+    ): Snippet {
         /** @var Snippet $snippet */
-        $snippet = $this->find($id);
+        $snippet = $this->findOneBy(['id' => $id, 'owner' => $user]);
+
         if (is_null($snippet)) throw new Error('Entity not found');
-
-        // Update properties dynamically
-        // foreach ($data as $key => $value) {
-        //     $setter = 'set' . ucfirst($key);
-
-        //     // Check if the setter exists and call it
-        //     if (method_exists($snippet, $setter)) {
-        //         $snippet->$setter($value);
-        //     }
-        // }
 
         $snippet->setTitle($title);
         $snippet->setCode($code);
+        $snippet->setLanguage($language);
+        $snippet->setFramework($framework);
+        $snippet->setPublic($isPublic);
 
         $em = $this->getEntityManager();
         $em->persist($snippet);
@@ -69,7 +71,7 @@ class SnippetRepository extends ServiceEntityRepository
         return $snippet;
     }
 
-    public function delete(int $id): Snippet
+    public function delete(Uuid $id): Snippet
     {
         $snippet = $this->find($id);
 
@@ -82,29 +84,15 @@ class SnippetRepository extends ServiceEntityRepository
         $em->flush();
         return $snippet;
     }
-
-    // /**
-    //  * @return Snippet[] Returns an array of Snippet objects
-    //  */
-    // public function findByExampleField($value): array
-    // {
-    //     return $this->createQueryBuilder('s')
-    //         ->andWhere('s.exampleField = :val')
-    //         ->setParameter('val', $value)
-    //         ->orderBy('s.id', 'ASC')
-    //         ->setMaxResults(10)
-    //         ->getQuery()
-    //         ->getResult()
-    //     ;
-    // }
-
-    // public function findOneBySomeField($value): ?Snippet
-    // {
-    //     return $this->createQueryBuilder('s')
-    //         ->andWhere('s.exampleField = :val')
-    //         ->setParameter('val', $value)
-    //         ->getQuery()
-    //         ->getOneOrNullResult()
-    //     ;
-    // }
 }
+// not sure it something like this considered bad practice here.
+// I guess if proper validation before hand it is fine
+        // Update properties dynamically
+        // foreach ($data as $key => $value) {
+        //     $setter = 'set' . ucfirst($key);
+
+        //     // Check if the setter exists and call it
+        //     if (method_exists($snippet, $setter)) {
+        //         $snippet->$setter($value);
+        //     }
+        // }

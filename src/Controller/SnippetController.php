@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Uid\Uuid;
 
 class SnippetController extends AbstractController
 {
@@ -85,11 +86,19 @@ class SnippetController extends AbstractController
 
 
     #[Route('/api/snippets/{id}', name: 'snippet_update', methods: 'PUT')]
-    public function put(Request $request, int $id): Response
+    public function put(#[CurrentUser()] User $user, Request $request, Uuid $id): Response
     {
         $data = $request->getPayload();
         $snippetRepository = $this->getRepository();
-        $snippet = $snippetRepository->update($id, $data->get('title'), $data->get('code'));
+        $snippet = $snippetRepository->update(
+            $user,
+            $id,
+            $data->get('title'),
+            $data->get('code'),
+            $data->get('language'),
+            $data->get('framework'),
+            $data->get('isPublic')
+        );
         return new JsonResponse(
             $snippet->toArray()
         );
@@ -97,7 +106,7 @@ class SnippetController extends AbstractController
 
 
     #[Route('/api/snippets/{id}', name: 'snippet_delete', methods: 'DELETE')]
-    public function destroy(int $id): Response
+    public function destroy(Uuid $id): Response
     {
         $snippetRepository = $this->getRepository();
         $snippet = $snippetRepository->delete($id);
