@@ -5,39 +5,38 @@ namespace App\Repository;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
  * @extends ServiceEntityRepository<User>
  */
 class UserRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    protected UserPasswordHasherInterface $passwordHasher;
+
+    public function __construct(ManagerRegistry $registry, UserPasswordHasherInterface $passwordHasher)
     {
         parent::__construct($registry, User::class);
+        $this->passwordHasher = $passwordHasher;
     }
 
-    //    /**
-    //     * @return User[] Returns an array of User objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('u.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
 
-    //    public function findOneBySomeField($value): ?User
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function register(string $username, string $email, string $password): User
+    {
+        $user = new User();
+        $user->setUsername($username);
+        $user->setPassword(
+            $this->passwordHasher->hashPassword(
+                $user,
+                $password
+            )
+        );
+        $user->setEmail($email);
+
+        $em = $this->getEntityManager();
+        $em->persist($user);
+        $em->flush();
+
+        return $user;
+    }
 }

@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20240928090918 extends AbstractMigration
+final class Version20240928101646 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -24,7 +24,10 @@ final class Version20240928090918 extends AbstractMigration
         , title VARCHAR(255) NOT NULL, code CLOB DEFAULT NULL, owner BLOB NOT NULL --(DC2Type:uuid)
         , is_public BOOLEAN NOT NULL, language VARCHAR(255) DEFAULT NULL, framework VARCHAR(255) DEFAULT NULL, likes INTEGER NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE TABLE user (id BLOB NOT NULL --(DC2Type:uuid)
-        , username VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
+        , username VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, roles CLOB NOT NULL --(DC2Type:json)
+        , PRIMARY KEY(id))');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_8D93D649F85E0677 ON user (username)');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_8D93D649E7927C74 ON user (email)');
     }
 
     public function down(Schema $schema): void
